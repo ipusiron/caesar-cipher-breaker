@@ -7,6 +7,22 @@
 
 このツールは単語間に空白がある暗号文の解読に最適化されています。
 
+## デモページ
+
+👉 [https://ipusiron.github.io/caesar-cipher-breaker/](https://ipusiron.github.io/caesar-cipher-breaker/)
+
+## スクリーンショット
+
+以下は実際の画面例です。
+
+> ![初期画面](ss1.png)
+>
+> *初期画面*
+
+>![初期画面](ss2.png)
+>
+> *初期画面*
+
 ## 対象暗号文の種類
 
 ### 空白あり暗号文（推奨）
