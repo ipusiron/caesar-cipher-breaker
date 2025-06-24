@@ -23,6 +23,7 @@ let isWordlistLoaded = true;
 // ページ読み込み時にwordlist.txtの読み込みを試行
 window.onload = function() {
     loadWordlist();
+    initTheme();
 };
 
 async function loadWordlist() {
@@ -182,4 +183,27 @@ function decrypt() {
 
 function clearResults() {
     document.getElementById("results").innerHTML = "";
+}
+
+// テーマ管理機能
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+    const themeIcon = document.querySelector('.theme-icon');
+    if (themeIcon) {
+        themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
 }

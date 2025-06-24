@@ -1,22 +1,98 @@
+:root {
+    --bg-color: #f5f5f5;
+    --container-bg: white;
+    --text-color: #333;
+    --heading-color: #2c3e50;
+    --border-color: #ddd;
+    --input-bg: white;
+    --input-border: #ddd;
+    --button-bg: #3498db;
+    --button-hover: #2980b9;
+    --result-bg: #f8f9fa;
+    --top-candidate-bg: #d4edda;
+    --second-candidate-bg: #d1ecf1;
+    --third-candidate-bg: #fff3cd;
+    --stats-bg: #e8f4f8;
+    --info-bg: #f0f8ff;
+    --info-border: #d1ecf1;
+    --link-color: #007bff;
+    --shadow: rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --container-bg: #2d2d2d;
+    --text-color: #e0e0e0;
+    --heading-color: #4a9eff;
+    --border-color: #444;
+    --input-bg: #3a3a3a;
+    --input-border: #555;
+    --button-bg: #4a9eff;
+    --button-hover: #357abd;
+    --result-bg: #3a3a3a;
+    --top-candidate-bg: #1a4d2e;
+    --second-candidate-bg: #1a3d4d;
+    --third-candidate-bg: #4d3d1a;
+    --stats-bg: #2a3a4a;
+    --info-bg: #2a3a4a;
+    --info-border: #3a4a5a;
+    --link-color: #6cb3ff;
+    --shadow: rgba(0,0,0,0.3);
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 20px;
-    background-color: #f5f5f5;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     max-width: 1000px;
     margin: 0 auto;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
-    background: white;
+    background: var(--container-bg);
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px var(--shadow);
+    transition: background-color 0.3s ease;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
 }
 
 h1 {
-    color: #2c3e50;
+    color: var(--heading-color);
     text-align: center;
-    margin-bottom: 30px;
+    margin: 0;
+    flex: 1;
+}
+
+.theme-toggle {
+    background: transparent;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 20px;
+}
+
+.theme-toggle:hover {
+    background: var(--button-bg);
+    border-color: var(--button-bg);
+}
+
+.theme-icon {
+    font-size: 1.2rem;
 }
 
 .input-section {
@@ -28,11 +104,14 @@ textarea {
     font-size: 1rem;
     margin-bottom: 15px;
     padding: 10px;
-    border: 2px solid #ddd;
+    border: 2px solid var(--input-border);
     border-radius: 5px;
     resize: vertical;
     font-family: 'Courier New', monospace;
     box-sizing: border-box;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    transition: all 0.3s ease;
 }
 
 button {
@@ -41,14 +120,15 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    background-color: #3498db;
+    background-color: var(--button-bg);
     color: white;
     margin-right: 10px;
     margin-bottom: 10px;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #2980b9;
+    background-color: var(--button-hover);
 }
 
 button:disabled {
@@ -59,24 +139,25 @@ button:disabled {
 .result-block {
     margin-bottom: 15px;
     padding: 15px;
-    background: #f8f9fa;
-    border-left: 4px solid #ddd;
+    background: var(--result-bg);
+    border-left: 4px solid var(--border-color);
     border-radius: 5px;
     font-family: 'Courier New', monospace;
+    transition: background-color 0.3s ease;
 }
 
 .top-candidate {
-    background: #d4edda;
+    background: var(--top-candidate-bg);
     border-left-color: #28a745;
 }
 
 .second-candidate {
-    background: #d1ecf1;
+    background: var(--second-candidate-bg);
     border-left-color: #17a2b8;
 }
 
 .third-candidate {
-    background: #fff3cd;
+    background: var(--third-candidate-bg);
     border-left-color: #ffc107;
 }
 
@@ -122,8 +203,9 @@ button:disabled {
 }
 
 .stats {
-    background: #e8f4f8;
+    background: var(--stats-bg);
     padding: 15px;
     border-radius: 5px;
     margin-bottom: 20px;
+    transition: background-color 0.3s ease;
 }
