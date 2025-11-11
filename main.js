@@ -36,6 +36,11 @@ let isWordlistLoaded = true;
 window.onload = function() {
     loadWordlist();
     initTheme();
+
+    // イベントリスナーを追加
+    document.getElementById('decryptBtn').addEventListener('click', decrypt);
+    document.getElementById('clearBtn').addEventListener('click', clearResults);
+    document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
 };
 
 async function loadWordlist() {
