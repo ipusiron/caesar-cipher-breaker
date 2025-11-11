@@ -39,3 +39,6 @@ secrets/
 # User data (if any)
 uploads/
 user_data/
+
+# Claude
+.claude/

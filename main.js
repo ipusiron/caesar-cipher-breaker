@@ -85,21 +85,34 @@ function caesarDecrypt(text, shift) {
 
 function highlightWords(text) {
     const words = text.split(/[\s,.\!\?\;\:\"\'\(\)\[\]\{\}]+/);
-    let highlightedText = escapeHtml(text); // まず全体をエスケープ
     let matchCount = 0;
     const matchedWords = new Set(); // 重複カウント防止
 
+    // マッチした単語のリストを作成
     words.forEach(word => {
         if (word.length > 0) {
             const upperWord = word.toUpperCase();
             if (commonWords.has(upperWord) && !matchedWords.has(upperWord)) {
                 matchedWords.add(upperWord);
-                // 正規表現の特殊文字をエスケープして安全に使用
-                const escapedWord = escapeRegex(escapeHtml(word));
-                const regex = new RegExp('\\b' + escapedWord + '\\b', 'gi');
-                highlightedText = highlightedText.replace(regex, '<span class="match-word">' + escapedWord + '</span>');
                 matchCount++;
             }
+        }
+    });
+
+    // テキストを安全にハイライト（XSS対策）
+    let highlightedText = '';
+    const parts = text.split(/(\s+|[,.\!\?\;\:\"\'\(\)\[\]\{\}]+)/);
+
+    parts.forEach(part => {
+        if (part.length > 0 && /\S/.test(part)) {
+            const upperPart = part.toUpperCase();
+            if (matchedWords.has(upperPart)) {
+                highlightedText += '<span class="match-word">' + escapeHtml(part) + '</span>';
+            } else {
+                highlightedText += escapeHtml(part);
+            }
+        } else {
+            highlightedText += escapeHtml(part);
         }
     });
 
