@@ -1,18 +1,30 @@
+// セキュリティ関数：HTMLエスケープ
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// セキュリティ関数：正規表現の特殊文字をエスケープ
+function escapeRegex(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // 基本単語リスト（フォールバック用）
 const defaultWords = [
-    'THE', 'BE', 'TO', 'OF', 'AND', 'A', 'IN', 'THAT', 'HAVE', 'I', 'IT', 'FOR', 'NOT', 'ON', 'WITH', 
-    'HE', 'AS', 'YOU', 'DO', 'AT', 'THIS', 'BUT', 'HIS', 'BY', 'FROM', 'THEY', 'WE', 'SAY', 'HER', 
-    'SHE', 'OR', 'AN', 'WILL', 'MY', 'ONE', 'ALL', 'WOULD', 'THERE', 'THEIR', 'WHAT', 'SO', 'UP', 
-    'OUT', 'IF', 'ABOUT', 'WHO', 'GET', 'WHICH', 'GO', 'ME', 'WHEN', 'MAKE', 'CAN', 'LIKE', 'TIME', 
-    'NO', 'JUST', 'HIM', 'KNOW', 'TAKE', 'PEOPLE', 'INTO', 'YEAR', 'YOUR', 'GOOD', 'SOME', 'COULD', 
-    'THEM', 'SEE', 'OTHER', 'THAN', 'THEN', 'NOW', 'LOOK', 'ONLY', 'COME', 'ITS', 'OVER', 'THINK', 
-    'ALSO', 'BACK', 'AFTER', 'USE', 'TWO', 'HOW', 'OUR', 'WORK', 'FIRST', 'WELL', 'WAY', 'EVEN', 
-    'NEW', 'WANT', 'BECAUSE', 'ANY', 'THESE', 'GIVE', 'DAY', 'MOST', 'US', 'IS', 'WAS', 'ARE', 
-    'BEEN', 'HAS', 'HAD', 'WERE', 'SAID', 'EACH', 'WHICH', 'DOES', 'OLD', 'CALL', 'MADE', 'WATER', 
-    'LONG', 'LITTLE', 'VERY', 'WORDS', 'CALLED', 'WHERE', 'LINE', 'RIGHT', 'TOO', 'MEANS', 'THREE', 
-    'CAME', 'HELP', 'THROUGH', 'MUCH', 'BEFORE', 'MOVE', 'SAME', 'TELL', 'SET', 'THOSE', 'TURN', 
-    'HERE', 'WHY', 'ASKED', 'WENT', 'MEN', 'READ', 'NEED', 'LAND', 'DIFFERENT', 'HOME', 'MUST', 
-    'BIG', 'HIGH', 'SUCH', 'FOLLOW', 'ACT', 'LARGE', 'OWN', 'PAGE', 'SHOULD', 'COUNTRY', 'FOUND', 
+    'THE', 'BE', 'TO', 'OF', 'AND', 'A', 'IN', 'THAT', 'HAVE', 'I', 'IT', 'FOR', 'NOT', 'ON', 'WITH',
+    'HE', 'AS', 'YOU', 'DO', 'AT', 'THIS', 'BUT', 'HIS', 'BY', 'FROM', 'THEY', 'WE', 'SAY', 'HER',
+    'SHE', 'OR', 'AN', 'WILL', 'MY', 'ONE', 'ALL', 'WOULD', 'THERE', 'THEIR', 'WHAT', 'SO', 'UP',
+    'OUT', 'IF', 'ABOUT', 'WHO', 'GET', 'WHICH', 'GO', 'ME', 'WHEN', 'MAKE', 'CAN', 'LIKE', 'TIME',
+    'NO', 'JUST', 'HIM', 'KNOW', 'TAKE', 'PEOPLE', 'INTO', 'YEAR', 'YOUR', 'GOOD', 'SOME', 'COULD',
+    'THEM', 'SEE', 'OTHER', 'THAN', 'THEN', 'NOW', 'LOOK', 'ONLY', 'COME', 'ITS', 'OVER', 'THINK',
+    'ALSO', 'BACK', 'AFTER', 'USE', 'TWO', 'HOW', 'OUR', 'WORK', 'FIRST', 'WELL', 'WAY', 'EVEN',
+    'NEW', 'WANT', 'BECAUSE', 'ANY', 'THESE', 'GIVE', 'DAY', 'MOST', 'US', 'IS', 'WAS', 'ARE',
+    'BEEN', 'HAS', 'HAD', 'WERE', 'SAID', 'EACH', 'WHICH', 'DOES', 'OLD', 'CALL', 'MADE', 'WATER',
+    'LONG', 'LITTLE', 'VERY', 'WORDS', 'CALLED', 'WHERE', 'LINE', 'RIGHT', 'TOO', 'MEANS', 'THREE',
+    'CAME', 'HELP', 'THROUGH', 'MUCH', 'BEFORE', 'MOVE', 'SAME', 'TELL', 'SET', 'THOSE', 'TURN',
+    'HERE', 'WHY', 'ASKED', 'WENT', 'MEN', 'READ', 'NEED', 'LAND', 'DIFFERENT', 'HOME', 'MUST',
+    'BIG', 'HIGH', 'SUCH', 'FOLLOW', 'ACT', 'LARGE', 'OWN', 'PAGE', 'SHOULD', 'COUNTRY', 'FOUND',
     'ANSWER', 'SCHOOL', 'HELLO', 'JAPAN', 'WORLD', 'HAPPY', 'HACKING'
 ];
 
@@ -73,15 +85,19 @@ function caesarDecrypt(text, shift) {
 
 function highlightWords(text) {
     const words = text.split(/[\s,.\!\?\;\:\"\'\(\)\[\]\{\}]+/);
-    let highlightedText = text;
+    let highlightedText = escapeHtml(text); // まず全体をエスケープ
     let matchCount = 0;
+    const matchedWords = new Set(); // 重複カウント防止
 
     words.forEach(word => {
         if (word.length > 0) {
             const upperWord = word.toUpperCase();
-            if (commonWords.has(upperWord)) {
-                const regex = new RegExp('\\b' + word + '\\b', 'gi');
-                highlightedText = highlightedText.replace(regex, '<span class="match-word">' + word + '</span>');
+            if (commonWords.has(upperWord) && !matchedWords.has(upperWord)) {
+                matchedWords.add(upperWord);
+                // 正規表現の特殊文字をエスケープして安全に使用
+                const escapedWord = escapeRegex(escapeHtml(word));
+                const regex = new RegExp('\\b' + escapedWord + '\\b', 'gi');
+                highlightedText = highlightedText.replace(regex, '<span class="match-word">' + escapedWord + '</span>');
                 matchCount++;
             }
         }
