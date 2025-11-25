@@ -1,3 +1,38 @@
+<!--
+---
+id: day008
+slug: caesar-cipher-breaker
+
+title: "Caesar Cipher Breaker"
+
+subtitle_ja: "シーザー暗号総当たり解読ツール"
+subtitle_en: "Caesar Cipher Brute-force Decryption Tool"
+
+description_ja: "全25通りのシフトで暗号文を復号化し、英単語マッチング数でランキング表示するWebベース解析ツール"
+description_en: "Web-based analysis tool that decrypts ciphertext with all 25 possible shifts and ranks results by English word matches"
+
+category_ja:
+  - 暗号解析
+  - 古典暗号
+category_en:
+  - Cryptanalysis
+  - Classical Cryptography
+
+difficulty: 1
+
+tags:
+  - caesar-cipher
+  - cryptanalysis
+  - brute-force
+  - substitution-cipher
+
+repo_url: "https://github.com/ipusiron/caesar-cipher-breaker"
+demo_url: "https://ipusiron.github.io/caesar-cipher-breaker/"
+
+hub: true
+---
+-->
+
 # シーザー暗号解読ツール（Caesar Cipher Breaker）
 
 **Day 7 - 生成AIで作るセキュリティツール100**
