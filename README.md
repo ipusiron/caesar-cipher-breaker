@@ -35,18 +35,24 @@ hub: true
 
 # シーザー暗号解読ツール（Caesar Cipher Breaker）
 
-**Day008 - 生成AIで作るセキュリティツール100**
+![GitHub Repo stars](https://img.shields.io/github/stars/ipusiron/caesar-cipher-breaker?style=social)
+![GitHub forks](https://img.shields.io/github/forks/ipusiron/caesar-cipher-breaker?style=social)
+![GitHub last commit](https://img.shields.io/github/last-commit/ipusiron/caesar-cipher-breaker)
+![GitHub license](https://img.shields.io/github/license/ipusiron/caesar-cipher-breaker)
+[![GitHub Pages](https://img.shields.io/badge/demo-GitHub%20Pages-blue?logo=github)](https://ipusiron.github.io/caesar-cipher-breaker/)
+
+**Day008 - 生成AIで作るセキュリティツール200**
 
 シーザー暗号の総当たり解読を行うWebベースのツールです。
 シフト数1から25までの全パターンを一度に表示し、英語頻出単語との一致数により自動的に最有力候補を判定します。
 
 このツールは単語間に空白がある暗号文の解読に最適化されています。
 
-## デモページ
+## 🌐 デモページ
 
 👉 [https://ipusiron.github.io/caesar-cipher-breaker/](https://ipusiron.github.io/caesar-cipher-breaker/)
 
-## スクリーンショット
+## 📸 スクリーンショット
 
 以下は実際の画面例です。
 
@@ -58,7 +64,7 @@ hub: true
 >
 > *解読結果*
 
-## 対象暗号文の種類
+## 🎯 対象暗号文の種類
 
 ### 空白あり暗号文（推奨）
 - 単語間にスペースが保持された暗号文。
@@ -76,22 +82,22 @@ hub: true
 空白なしの長文暗号文の解析には、頻度分析や統計的手法を用いた別の解読アプローチが有効です。
 このような暗号文に特化した専用解読ツールを別途開発予定です。
 
-## 使用方法
+## 📖 使用方法
 1. `index.html`をWebブラウザーで開く。
 2. テキストエリアに暗号文を入力する。
 3. 「総当たり解読（全パターン表示）」ボタンをクリックする。
 4. 25パターンの解読結果が表示され、上位3候補が自動判定される。
 
 なお、辞書ファイル（`wordlist.txt`ファイル）がある場合は、辞書ファイル内の単語＋内蔵の165語を使用します。
-一方、辞書フィあるがなかった場合、あるいは読み込めなかった場合は、内蔵の165語のみを使用します。
+一方、辞書ファイルがなかった場合、あるいは読み込めなかった場合は、内蔵の165語のみを使用します。
 
-## 辞書ファイルに対応
+## 📚 辞書ファイルに対応
 - 辞書ファイル名は`wordlist.txt`を固定とする。
 - 1行1単語形式。
 - ファイル内は大文字で記載されているが、小文字混在でも正常に対応。
 - 添付した辞書ファイルには、デフォルトで約1,000語の英語頻出単語を頻出順に配列してある。
 
-## 機能詳細
+## ✨ 機能詳細
 
 ### 対応文字
 - 英語（A-Z, a-z）のみ対応。
@@ -135,7 +141,7 @@ IFMMP KYBYO
 
 各ブロックは `shift=N` の行と復号結果の行で構成される。
 
-## テスト方法
+## 🧪 テスト方法
 
 ### 空白あり暗号文（推奨テスト）
 暗号文例`KHOOR MDSDQ`を入力してテスト可能。
@@ -149,7 +155,7 @@ IFMMP KYBYO
 - 25パターンすべて表示されるが、単語マッチは困難。
 - 目視による平文判定が必要。
 
-## 統計情報
+## 📊 統計情報
 解読結果の上部に以下の統計情報を表示：
 - 入力文字数
 - 単語リスト（ソースと語数）
@@ -157,10 +163,28 @@ IFMMP KYBYO
 - 判定基準
 - 空白なし暗号文の警告（該当する場合）
 
-## ライセンス
-このプロジェクトはMITライセンスの下で公開されています。 教育目的での自由な利用・改変・再配布が可能です。
+## 📁 ディレクトリー構造
 
-## このツールについて
+```
+caesar-cipher-breaker/
+├── index.html          # メインHTMLファイル
+├── main.js             # JavaScriptコード（解読ロジック）
+├── style.css           # スタイルシート
+├── wordlist.txt        # 英語頻出単語辞書（約1,000語）
+├── ss1.png             # スクリーンショット（初期画面）
+├── ss2.png             # スクリーンショット（解読結果）
+├── README.md           # 本ドキュメント
+├── LICENSE             # MITライセンス
+├── CLAUDE.md           # Claude Code用設定
+├── .gitignore          # Git除外設定
+└── .nojekyll           # GitHub Pages用設定
+```
+
+## 📄 ライセンス
+
+- ソースコードのライセンスは `LICENSE` ファイルを参照してください。
+
+## 🛠️ このツールについて
 本ツールは、「生成AIで作るセキュリティツール100」プロジェクトの一環として開発されました。
 このプロジェクトでは、AIの支援を活用しながら、セキュリティに関連するさまざまなツールを100日間にわたり制作・公開していく取り組みを行っています。
 
