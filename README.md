@@ -114,6 +114,27 @@ hub: true
   - **候補2**: 青背景
   - **候補3**: 黄背景
 
+### Semantic Ranking用エクスポート
+解読結果を他ツール（Embedding/Semantic Ranker）へ渡すためのエクスポート機能。
+
+- 「Copy for Semantic Ranking」ボタンをクリックすると、全26シフト（0〜25）の復号結果をクリップボードにコピー。
+- 出力形式はブロック区切り形式（各ブロックは空行で区切り）。
+
+**出力フォーマット例：**
+```
+shift=0
+KHOOR MDSDQ
+
+shift=1
+JGNNQ LZCZQ
+
+shift=2
+IFMMP KYBYO
+...
+```
+
+各ブロックは `shift=N` の行と復号結果の行で構成される。
+
 ## テスト方法
 
 ### 空白あり暗号文（推奨テスト）

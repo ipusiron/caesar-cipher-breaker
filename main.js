@@ -32,6 +32,9 @@ let commonWords = new Set(defaultWords);
 let wordlistSource = "内蔵のみ";
 let isWordlistLoaded = true;
 
+// 最新の暗号文を保持（エクスポート用）
+let lastCipherText = "";
+
 // ページ読み込み時にwordlist.txtの読み込みを試行
 window.onload = function() {
     loadWordlist();
@@ -41,6 +44,7 @@ window.onload = function() {
     document.getElementById('decryptBtn').addEventListener('click', decrypt);
     document.getElementById('clearBtn').addEventListener('click', clearResults);
     document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+    document.getElementById('copySemanticBtn').addEventListener('click', copyForSemanticRanking);
 };
 
 async function loadWordlist() {
@@ -136,8 +140,14 @@ function decrypt() {
         return;
     }
 
+    // エクスポート用に暗号文を保存
+    lastCipherText = text;
+
     const results = document.getElementById("results");
     results.innerHTML = "";
+
+    // コピーボタンを表示
+    document.getElementById("copySemanticBtn").style.display = "inline-block";
 
     const decryptResults = [];
 
@@ -217,6 +227,58 @@ function decrypt() {
 
 function clearResults() {
     document.getElementById("results").innerHTML = "";
+    document.getElementById("copySemanticBtn").style.display = "none";
+    lastCipherText = "";
+}
+
+// Semantic Ranking用のブロック形式でコピー
+function copyForSemanticRanking() {
+    if (!lastCipherText) {
+        showToast("先に解読を実行してください", true);
+        return;
+    }
+
+    // 全26シフト（0-25）を生成
+    const blocks = [];
+    for (let shift = 0; shift <= 25; shift++) {
+        const decrypted = caesarDecrypt(lastCipherText, shift);
+        blocks.push("shift=" + shift + "\n" + decrypted);
+    }
+
+    // ブロックを空行で区切って結合（LF使用）
+    const output = blocks.join("\n\n");
+
+    // クリップボードにコピー
+    navigator.clipboard.writeText(output).then(function() {
+        showToast("Copied (Semantic Ranking format)");
+    }).catch(function(err) {
+        // フォールバック: textareaを使用
+        const textarea = document.createElement("textarea");
+        textarea.value = output;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand("copy");
+            showToast("Copied (Semantic Ranking format)");
+        } catch (e) {
+            showToast("コピーに失敗しました", true);
+        }
+        document.body.removeChild(textarea);
+    });
+}
+
+// トースト通知を表示
+function showToast(message, isError) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.className = "toast" + (isError ? " toast-error" : "");
+    toast.classList.add("toast-show");
+
+    setTimeout(function() {
+        toast.classList.remove("toast-show");
+    }, 2500);
 }
 
 // テーマ管理機能

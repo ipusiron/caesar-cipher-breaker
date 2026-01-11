@@ -136,6 +136,12 @@ button:disabled {
     cursor: not-allowed;
 }
 
+#copySemanticBtn {
+    font-size: 1rem;
+    padding: 10px 20px;
+    margin-left: 30px;
+}
+
 .result-block {
     margin-bottom: 15px;
     padding: 15px;
@@ -208,4 +214,38 @@ button:disabled {
     border-radius: 5px;
     margin-bottom: 20px;
     transition: background-color 0.3s ease;
+}
+
+/* Toast notification */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #333;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.toast-show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast-error {
+    background: #dc3545;
+}
+
+[data-theme="dark"] .toast {
+    background: #555;
+}
+
+[data-theme="dark"] .toast-error {
+    background: #c82333;
 }
