@@ -33,7 +33,7 @@ hub: true
 ---
 -->
 
-# シーザー暗号解読ツール（Caesar Cipher Breaker）
+# Caesar Cipher Breaker - シーザー暗号解読ツール
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/ipusiron/caesar-cipher-breaker?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/ipusiron/caesar-cipher-breaker?style=social)
@@ -41,7 +41,7 @@ hub: true
 ![GitHub license](https://img.shields.io/github/license/ipusiron/caesar-cipher-breaker)
 [![GitHub Pages](https://img.shields.io/badge/demo-GitHub%20Pages-blue?logo=github)](https://ipusiron.github.io/caesar-cipher-breaker/)
 
-**Day008 - 生成AIで作るセキュリティツール200**
+**Day008 - 生成AIで作るセキュリティツール100**
 
 シーザー暗号の総当たり解読を行うWebベースのツールです。
 シフト数1から25までの全パターンを一度に表示し、英語頻出単語との一致数により自動的に最有力候補を判定します。
