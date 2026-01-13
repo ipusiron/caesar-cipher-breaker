@@ -125,6 +125,7 @@ hub: true
 
 - 「Copy for Semantic Ranking」ボタンをクリックすると、全26シフト（0〜25）の復号結果をクリップボードにコピー。
 - 出力形式はブロック区切り形式（各ブロックは空行で区切り）。
+- このフォーマットは [Semantic Candidate Ranker](https://github.com/ipusiron/gematria-cipherlab) がサポートする入力形式に対応。
 
 **出力フォーマット例：**
 ```
