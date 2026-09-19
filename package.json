@@ -1,0 +1,7 @@
+{
+    "name": "caesar-cipher-breaker",
+    "private": true,
+    "scripts": {
+        "test": "node --test"
+    }
+}
