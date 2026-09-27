@@ -1,14 +1,16 @@
 // 復号・採点はDOMに依存しないCaesarLogicへ委譲する。
 let commonWords = new Set(CaesarLogic.DEFAULT_WORDS);
-let wordlistSource = "内蔵のみ";
+// 表示中の文言ではなく辞書キーで保持する。言語を切り替えても状態が壊れない。
+let wordlistSourceKey = "wordlist.builtin";
 let isWordlistLoaded = false;
 let toastTimeout;
 
-// 最新の暗号文を保持（エクスポート用）
+// 最新の暗号文を保持（エクスポートと言語切り替え時の再描画用）
 let lastCipherText = "";
 
 // ページ読み込み時にwordlist.txtの読み込みを試行
 window.onload = async function() {
+    I18n.init();
     initTheme();
 
     // イベントリスナーを追加
@@ -16,6 +18,14 @@ window.onload = async function() {
     document.getElementById('clearBtn').addEventListener('click', clearResults);
     document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
     document.getElementById('copySemanticBtn').addEventListener('click', copyForSemanticRanking);
+    document.getElementById('langToggleBtn').addEventListener('click', function() {
+        I18n.setLanguage(I18n.language === 'ja' ? 'en' : 'ja');
+    });
+    // 結果一覧は動的に組むため、言語が変わったら同じ暗号文で描き直す。
+    document.addEventListener('languagechange', function() {
+        updateThemeIcon(document.documentElement.getAttribute('data-theme'));
+        if (lastCipherText) renderResults(lastCipherText);
+    });
     await loadWordlist();
 };
 
@@ -25,32 +35,32 @@ async function loadWordlist() {
     button.disabled = true;
     try {
         if (location.protocol === 'file:') {
-            wordlistSource = "内蔵のみ／file://のため外部辞書は読み込みません";
+            wordlistSourceKey = "wordlist.fileProtocol";
             return;
         }
         const response = await fetch('wordlist.txt');
         if (!response.ok) {
-            throw new Error('wordlist.txtが見つかりません');
+            throw new Error('wordlist.txt not found');
         }
         const content = await response.text();
         const externalWords = CaesarLogic.parseWordlist(content);
-        
+
         if (externalWords.length > 0) {
             // 内蔵単語と外部単語を合併
             const combinedWords = new Set([...CaesarLogic.DEFAULT_WORDS, ...externalWords]);
             commonWords = combinedWords;
-            wordlistSource = "内蔵 + 外部ファイル";
+            wordlistSourceKey = "wordlist.combined";
         } else {
-            throw new Error('wordlist.txtが空です');
+            throw new Error('wordlist.txt is empty');
         }
     } catch (error) {
         // 内蔵リストのみ使用
         commonWords = new Set(CaesarLogic.DEFAULT_WORDS);
-        wordlistSource = "内蔵のみ";
+        wordlistSourceKey = "wordlist.builtin";
     } finally {
         isWordlistLoaded = true;
         button.disabled = false;
-        console.log('単語リスト（' + commonWords.size + '語）：' + wordlistSource);
+        console.log(I18n.t('console.wordlist', { count: commonWords.size, source: I18n.t(wordlistSourceKey) }));
     }
 }
 
@@ -68,18 +78,22 @@ function highlightWords(text) {
 function decrypt() {
     const text = document.getElementById("cipherText").value;
     if (!text.trim()) {
-        showToast("暗号文を入力してください", true);
+        showToast(I18n.t('toast.needText'), true);
         return;
     }
 
     if (!isWordlistLoaded) {
-        showToast("単語リストの読み込み中です。少々お待ちください。", true);
+        showToast(I18n.t('toast.loading'), true);
         return;
     }
 
-    // エクスポート用に暗号文を保存
+    // エクスポートと再描画のために暗号文を保存
     lastCipherText = text;
+    renderResults(text);
+}
 
+// 統計と25候補を組み直す。言語切り替え後もここを通す。
+function renderResults(text) {
     const results = document.getElementById("results");
     results.replaceChildren();
 
@@ -88,38 +102,7 @@ function decrypt() {
     const ranking = CaesarLogic.rankShifts(text, commonWords);
     const topCandidate = ranking.results[0];
 
-    const statsDiv = document.createElement("div");
-    statsDiv.className = "stats";
-    
-    const heading = document.createElement('h2');
-    heading.textContent = '📊 解読統計';
-    statsDiv.appendChild(heading);
-    const fields = [
-        ['入力文字数', text.length + '文字'],
-        ['単語リスト', wordlistSource + '（' + commonWords.size + '語）'],
-        ['最有力候補', '鍵 = ' + topCandidate.shift + ' (' + topCandidate.matchCount + '語マッチ)'],
-        ['判定基準', ranking.criterion === 'words' ? '単語リストとの一致数' : '英語文字頻度（カイ二乗）']
-    ];
-    for (const [label, value] of fields) {
-        const paragraph = document.createElement('p');
-        const strong = document.createElement('strong');
-        strong.textContent = label + ': ';
-        paragraph.append(strong, document.createTextNode(value));
-        statsDiv.appendChild(paragraph);
-    }
-    const warnings = [];
-    if (!/\s/.test(text)) warnings.push('空白なしのため単語マッチが使えず、英語文字頻度で判定しています。');
-    if (ranking.criterion === 'chi' && !CaesarLogic.isChiReliable(text)) {
-        warnings.push('英字が30字未満のため、頻度による判定の信頼性は低いです。');
-    }
-    if (topCandidate.chiSquare === null) warnings.push('英字がないためカイ二乗は算出できません。');
-    for (const warning of warnings) {
-        const paragraph = document.createElement('p');
-        paragraph.className = 'warning';
-        paragraph.textContent = '⚠️ ' + warning;
-        statsDiv.appendChild(paragraph);
-    }
-    results.appendChild(statsDiv);
+    results.appendChild(buildStats(text, ranking, topCandidate));
 
     for (let shift = 1; shift <= 25; shift++) {
         const result = ranking.results.find(candidate => candidate.shift === shift);
@@ -129,12 +112,12 @@ function decrypt() {
         div.dataset.shift = shift;
         const keyInfo = document.createElement('div');
         keyInfo.className = 'key-info';
-        keyInfo.textContent = '鍵 = ' + shift + ' ';
+        keyInfo.textContent = I18n.t('result.key', { shift: shift }) + ' ';
         if (result.rank) {
             const rankNum = result.rank;
             const badge = document.createElement('span');
             badge.className = 'ranking-badge rank-' + rankNum;
-            badge.textContent = '候補 ' + rankNum;
+            badge.textContent = I18n.t('result.badge', { rank: rankNum });
             keyInfo.appendChild(badge);
             div.classList.add(['top-candidate', 'second-candidate', 'third-candidate'][rankNum - 1]);
         }
@@ -142,12 +125,49 @@ function decrypt() {
         plaintext.appendChild(highlightWords(result.text));
         const wordCount = document.createElement('div');
         wordCount.className = 'word-count';
-        const score = result.chiSquare === null ? '算出不可（英字なし）' : result.chiSquare.toFixed(2);
-        wordCount.textContent = 'マッチした単語数: ' + result.matchCount + '／カイ二乗: ' + score;
+        const score = result.chiSquare === null ? I18n.t('result.chiUnavailable') : result.chiSquare.toFixed(2);
+        wordCount.textContent = I18n.t('result.score', { matches: result.matchCount, chi: score });
         div.append(keyInfo, plaintext, wordCount);
-        
+
         results.appendChild(div);
     }
+}
+
+// 解読統計のブロックを組む。判定基準と警告は文言でなく辞書キーで選ぶ。
+function buildStats(text, ranking, topCandidate) {
+    const statsDiv = document.createElement("div");
+    statsDiv.className = "stats";
+
+    const heading = document.createElement('h2');
+    heading.textContent = I18n.t('stats.heading');
+    statsDiv.appendChild(heading);
+    const source = I18n.t(wordlistSourceKey);
+    const fields = [
+        ['stats.length', I18n.t('stats.lengthValue', { count: text.length })],
+        ['stats.wordlist', I18n.t('stats.wordlistValue', { source: source, count: commonWords.size })],
+        ['stats.top', I18n.t('stats.topValue', { shift: topCandidate.shift, count: topCandidate.matchCount })],
+        ['stats.criterion', I18n.t(ranking.criterion === 'words' ? 'stats.criterionWords' : 'stats.criterionChi')]
+    ];
+    for (const [labelKey, value] of fields) {
+        const paragraph = document.createElement('p');
+        const strong = document.createElement('strong');
+        strong.textContent = I18n.t(labelKey) + ': ';
+        paragraph.append(strong, document.createTextNode(value));
+        statsDiv.appendChild(paragraph);
+    }
+    const warnings = [];
+    if (!/\s/.test(text)) warnings.push('warn.noSpace');
+    if (ranking.criterion === 'chi' && !CaesarLogic.isChiReliable(text)) {
+        warnings.push('warn.shortText');
+    }
+    if (topCandidate.chiSquare === null) warnings.push('warn.noLetters');
+    for (const warning of warnings) {
+        const paragraph = document.createElement('p');
+        paragraph.className = 'warning';
+        paragraph.textContent = '⚠️ ' + I18n.t(warning);
+        statsDiv.appendChild(paragraph);
+    }
+    return statsDiv;
 }
 
 function clearResults() {
@@ -159,7 +179,7 @@ function clearResults() {
 // Semantic Ranking用のブロック形式でコピー
 async function copyForSemanticRanking() {
     if (!lastCipherText) {
-        showToast("先に解読を実行してください", true);
+        showToast(I18n.t('toast.needDecrypt'), true);
         return;
     }
 
@@ -169,7 +189,7 @@ async function copyForSemanticRanking() {
     // クリップボードにコピー
     try {
         await navigator.clipboard.writeText(output);
-        showToast("Copied (Semantic Ranking format)");
+        showToast(I18n.t('toast.copied'));
     } catch (error) {
         // フォールバック: textareaを使用
         const textarea = document.createElement("textarea");
@@ -179,9 +199,9 @@ async function copyForSemanticRanking() {
         textarea.select();
         try {
             if (!document.execCommand("copy")) throw new Error('Copy unavailable');
-            showToast("Copied (Semantic Ranking format)");
+            showToast(I18n.t('toast.copied'));
         } catch (e) {
-            showToast("コピーに失敗しました", true);
+            showToast(I18n.t('toast.copyFailed'), true);
         }
         textarea.remove();
     }
@@ -215,7 +235,7 @@ function initTheme() {
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
+
     document.documentElement.setAttribute('data-theme', newTheme);
     try {
         localStorage.setItem('theme', newTheme);
@@ -226,9 +246,15 @@ function toggleTheme() {
 }
 
 function updateThemeIcon(theme) {
-    document.getElementById('themeToggleBtn').setAttribute('aria-pressed', String(theme === 'dark'));
+    const isDark = theme === 'dark';
+    const button = document.getElementById('themeToggleBtn');
+    button.setAttribute('aria-pressed', String(isDark));
+    // 次に切り替わる先を読み上げる。以前はダーク表示中も「ダークモード切り替え」のままだった。
+    const label = I18n.t(isDark ? 'theme.toLight' : 'theme.toDark');
+    button.setAttribute('aria-label', label);
+    button.setAttribute('title', label);
     const themeIcon = document.querySelector('.theme-icon');
     if (themeIcon) {
-        themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        themeIcon.textContent = isDark ? '☀️' : '🌙';
     }
 }

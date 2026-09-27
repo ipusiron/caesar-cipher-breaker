@@ -18,9 +18,10 @@ test('viewport・CSP・referrer・favicon・noscript', () => {
     assert.match(html, /<noscript>[^<]*JavaScript[^<]*<\/noscript>/);
 });
 
-test('古典スクリプト2本はdefer付きでロジック→DOMの順', () => {
+test('古典スクリプト3本はdefer付きでi18n→ロジック→DOMの順', () => {
     const scripts = [...html.matchAll(/<script\b[^>]*>/g)].map(match => match[0]);
-    assert.deepEqual(scripts, ['<script src="caesar-logic.js" defer>', '<script src="main.js" defer>']);
+    assert.deepEqual(scripts, ['<script src="i18n.js" defer>',
+        '<script src="caesar-logic.js" defer>', '<script src="main.js" defer>']);
     assert.doesNotMatch(html, /\stype\s*=\s*["']module["']/i);
 });
 
@@ -31,10 +32,11 @@ test('インラインイベント・style・危険なDOM文字列代入なし', 
 });
 
 test('必須ID・label・live領域・テーマの読み上げ・初期disabledとhidden', () => {
-    for (const id of ['cipherText', 'decryptBtn', 'clearBtn', 'copySemanticBtn', 'results', 'toast', 'themeToggleBtn']) {
+    for (const id of ['cipherText', 'decryptBtn', 'clearBtn', 'copySemanticBtn', 'results', 'toast',
+        'themeToggleBtn', 'langToggleBtn']) {
         assert.equal([...html.matchAll(new RegExp(`id="${id}"`, 'g'))].length, 1, id);
     }
-    assert.match(html, /<label for="cipherText">/);
+    assert.match(html, /<label for="cipherText"[^>]*>/);
     assert.match(html, /<div id="results" aria-live="polite">/);
     assert.match(html, /<div id="toast"[^>]*role="status"[^>]*aria-live="polite">/);
     assert.match(html, /<button[^>]*id="themeToggleBtn"[^>]*aria-label="[^"]+"[^>]*aria-pressed="false">/);

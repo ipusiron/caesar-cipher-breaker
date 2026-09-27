@@ -6,6 +6,7 @@
 
 Day008「生成AIで作るセキュリティツール100」のシーザー暗号解読ツールです。
 vanilla JavaScriptの静的Webツールで、npm依存とビルド処理はありません。
+画面の文言は日本語と英語を切り替えられます。
 空白ありでは単語マッチ数、空白なしや全候補マッチ0ではカイ二乗を使って候補を判定します。
 
 ## Common Development Commands
@@ -26,11 +27,12 @@ HTTP配信ではwordlist.txtを取得し、合併した1,473語を使います�
 ### Core Files
 
 - index.html：入力、操作ボタン、結果、通知、GitHubフッター
+- i18n.js：日英の辞書とdata-i18nの適用。他のスクリプトより先に読み込む
 - caesar-logic.js：DOM非依存の古典スクリプトとCommonJS共用モジュール
 - main.js：DOM構築、辞書取得、テーマ管理、クリップボード操作
 - style.css：ライト／ダークのCSS変数、モバイル表示
 - wordlist.txt：1,842行、ユニーク1,472語。内蔵165語との合併は1,473語
-- test/：node:testとnode:assert/strictによる6ファイル
+- test/：node:testとnode:assert/strictによる7ファイル
 - package.json：依存なしのnpm test（node --test）
 - .github/workflows/test.yml：push／pull_requestのNode22テスト
 - assets/：README用のスクリーンショット3枚
@@ -53,6 +55,11 @@ caesar-logic.jsはglobalThis.CaesarLogicとmodule.exportsに次を公開しま�
 - parseWordlist：空行除去、前後空白除去、大文字化（重複行は保持）
 - buildSemanticExport：シフト0〜25の26ブロック、LFの空行区切り
 
+i18n.jsはI18nをwindowとmodule.exportsに公開し、t・apply・init・setLanguageを持ちます。
+辞書のキーは日英で同一です。差し込みは`{name}`の形で、知らないキーではthrowします。
+initは`?lang`→localStorage→navigator.languageの順に言語を決めます。
+setLanguageは保存してapplyし、languagechangeイベントを発火します。
+
 main.jsのloadWordlistは読み込み中にボタンを無効化し、完了後に戻します。
 decryptとhighlightWordsはDOMを構築し、clearResultsで結果とコピーボタンを隠します。
 copyForSemanticRanking、showToast、initTheme、toggleTheme、updateThemeIconが画面操作を担当します。
@@ -70,8 +77,14 @@ copyForSemanticRanking、showToast、initTheme、toggleTheme、updateThemeIcon�
 - 暗号文を外部送信しない。ライブラリー、npm依存、CDNを追加しない。
 - DOM表示にinnerHTMLを使わず、textContentで文字列として扱う。
 - CSPにframe-ancestorsを書かない。metaでは無効である。
-- localStorageはlight／darkのテーマだけに使用し、不正値や保存拒否にも対応する。
+- localStorageはlight／darkのテーマとja／enの言語だけに使用し、不正値や保存拒否にも対応する。
+- 画面の文言をスクリプトに直接書かず、i18n.jsの辞書とI18n.tを通す。
+- 状態の判定に表示中の文言を使わない。辞書の出所はwordlistSourceKeyで保持する。
+- 結果一覧は動的に組むため、languagechangeでrenderResultsを呼び直す。
+- 子要素を持つ要素にdata-i18nを付けない。applyがtextContentを置き換えるためである。
 - HTTPとfile://の両方でconsoleとCSP違反を確認する。
 - 旧画像ss1.png・ss2.png、wordlist.txt、初期暗号文、26ブロックの出力形式は維持する。
+- 判定の規則としきい値を言語で変えない。翻訳は文言だけに留める。
+- README.mdとREADME.en.mdは相互にリンクし、内容の食い違いを残さない。
 
 公開先はhttps://ipusiron.github.io/caesar-cipher-breaker/です。

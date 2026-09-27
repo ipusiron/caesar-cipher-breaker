@@ -35,6 +35,8 @@ hub: true
 
 # Caesar Cipher Breaker - シーザー暗号解読ツール
 
+[English](README.en.md) · 日本語
+
 ![GitHub Repo stars](https://img.shields.io/github/stars/ipusiron/caesar-cipher-breaker?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/ipusiron/caesar-cipher-breaker?style=social)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ipusiron/caesar-cipher-breaker)
@@ -74,6 +76,14 @@ hub: true
 > *同じ解読結果のダークモード表示です。*
 
 ## ✨ 機能
+
+### 日本語と英語の切り替え
+
+- 画面右上の言語ボタンで、画面の文言を日本語と英語で切り替える。
+- 選んだ言語はlocalStorageに保存し、次回の読み込みでも維持する。
+- URLに`?lang=en`または`?lang=ja`を付けて直接指定できる。
+- 言語を切り替えても、入力した暗号文と表示中の25候補は消えない。
+- 判定の規則としきい値は言語によって変わらない。
 
 ### 空白あり暗号文（推奨）
 
@@ -220,7 +230,7 @@ E_c = n × f_c / 100
 
 暗号文と解読結果はブラウザー内で処理し、外部送信しません。
 HTTP配信時の追加通信は同じ配信元の`wordlist.txt`の取得だけです。
-テーマのlight／darkだけをlocalStorageに保存し、暗号文は保存しません。
+localStorageに保存するのはテーマのlight／darkと言語のja／enだけで、暗号文は保存しません。
 画面表示はDOM要素とtextContentで構築します。
 
 CSPをmetaで設定し、スクリプトとスタイルを同一配信元に制限しています。
@@ -243,6 +253,7 @@ npm test
 ```
 
 node --testで既知解答、全シフトの往復、ランキング規則、短文で鍵25になる限界、HTML、配色と整形を検証します。
+日英の辞書についても、キーの一致、差し込みの名前、訳し忘れの日本語、状態を文言で判定していないことを検証します。
 READMEの辞書数値、復号例、画像参照も実ファイルからテストします。
 GitHub Actionsでpushとpull_requestの両方に対して自動実行します。
 
@@ -269,18 +280,20 @@ HTTP配信では合併した1,473語を使います。
 ```
 caesar-cipher-breaker/
 ├── index.html          # メインHTMLファイル
+├── i18n.js             # 日英の辞書と言語切り替え
 ├── caesar-logic.js     # 復号・単語判定・カイ二乗・ランキング
 ├── main.js             # DOM描画・辞書取得・テーマ・コピー
 ├── style.css           # スタイルシート
 ├── wordlist.txt        # 辞書1,842行・ユニーク1,472語（変更なし）
 ├── package.json        # 依存なしのnpm test
-├── test/               # ロジック・スコア・README・HTML・配色・整形の6テストファイル
+├── test/               # ロジック・スコア・README・HTML・配色・整形・日英辞書の7テストファイル
 ├── assets/             # screenshot.png〜screenshot3.png
 ├── .github/workflows/  # Testワークフロー
 ├── .claude/            # ローカル開発用スキル等（Git管理外）
 ├── ss1.png             # スクリーンショット（初期画面）
 ├── ss2.png             # スクリーンショット（解読結果）
 ├── README.md           # 本ドキュメント
+├── README.en.md        # 英語版ドキュメント
 ├── LICENSE             # MITライセンス
 ├── CLAUDE.md           # Claude Code用設定
 ├── .gitignore          # Git除外設定
