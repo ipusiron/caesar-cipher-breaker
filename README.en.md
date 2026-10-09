@@ -165,6 +165,14 @@ Each candidate block shows its key, the number of words matched, and the chi-squ
 
 ## 🎯 Where it is useful
 
+Ways of using this tool in particular
+
+- Feeling how sample size matters (a statistics class): encrypt the opening of Lincoln's Gettysburg Address (90 letters without spaces) with shift 3 and let the tool solve it one more letter at a time from the start. With the letter-frequency (chi-squared) score, the correct shift comes first from the 9th letter on and never drops back; up to 8 letters another shift comes first. You can find out by hand how many letters the statistics need (the number depends on the text; the tool flags anything under 30 letters as low confidence)
+- Learning "addition that comes back around" (a mathematics class): encrypting with shift 23 is the same as decrypting with shift 3, and HELLO becomes EBIIL either way. It is the same modular addition as the 12 hours of a clock or the 12 semitones of transposing music, checked here with 26
+- Writing text that fools frequency analysis (wordplay and puzzle making): a sentence without the letter E throws off the letter-frequency score. Encrypt "BUT A FAST GRAY FOX DID JUMP ON A LAZY DOG" (32 letters) with shift 7 and solve it with the spaces removed: frequency puts shift 19 first. With the spaces kept, the word matches bring shift 7 back to first place. It is an example that fails even above 30 letters, ready for a CTF or a puzzle
+
+General uses
+
 - Learning how a Caesar cipher falls, and checking candidates during a CTF
 - Comparing what a word list says with what letter frequencies say
 - Preparing candidates to pass on to Semantic Candidate Ranker
