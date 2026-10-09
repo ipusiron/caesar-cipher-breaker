@@ -73,3 +73,35 @@ test('シリーズ・節・関連ツール・注意書き・CLAUDEが現行仕�
     for (const name of Object.keys(logic)) assert.ok(claude.includes(name), name);
     assert.doesNotMatch(claude, /Day 7\/100|caesarShift|decryptCaesar|countEnglishWords|decryptAllShifts|KHOORMSDSDQ/);
 });
+
+test('ユースケースの「このツールならではの使い方」の数値は実ロジックで再計算した結果と一致（日英）', () => {
+    const readmeEn = read('README.en.md');
+    const vocab = new Set([...words, ...logic.DEFAULT_WORDS]);
+    const top = text => logic.rankShifts(text, vocab).results[0].shift;
+    const g = 'FOURSCOREANDSEVENYEARSAGOOURFATHERSBROUGHTFORTHONTHISCONTINENTANEWNATIONCONCEIVEDINLIBERTY';
+    const c = logic.caesarEncrypt(g, 3);
+    let from = 3;
+    for (let n = g.length; n >= 3; n--) if (top(c.slice(0, n)) !== 3) { from = n + 1; break; }
+    assert.deepEqual([g.length, from, top(c.slice(0, from - 1)) !== 3], [90, 9, true]);
+    for (const part of [`空白を除いて英字${g.length}字`, `1位になるのは${from}字目からで`, `${from - 1}字までは別のシフト`]) {
+        assert.ok(readme.includes(part), part);
+    }
+    for (const part of [`(${g.length} letters without spaces)`, `from the ${from}th letter on`, `up to ${from - 1} letters`]) {
+        assert.ok(readmeEn.includes(part), part);
+    }
+    assert.equal(logic.isChiReliable('A'.repeat(29)), false);
+    assert.equal(logic.isChiReliable('A'.repeat(30)), true);
+    assert.equal(logic.caesarEncrypt('HELLO', 23), 'EBIIL');
+    assert.equal(logic.caesarDecrypt('HELLO', 3), 'EBIIL');
+    for (const text of [readme, readmeEn]) assert.ok(text.includes('HELLO') && text.includes('EBIIL'));
+    const fox = 'BUT A FAST GRAY FOX DID JUMP ON A LAZY DOG';
+    assert.ok(!fox.includes('E'));
+    const enc = logic.caesarEncrypt(fox, 7);
+    const letters = fox.replace(/[^A-Z]/g, '').length;
+    const [noSpace, spaced] = [top(enc.replace(/ /g, '')), top(enc)];
+    assert.deepEqual([letters, noSpace, spaced], [32, 19, 7]);
+    const jaFox = `「${fox}」（英字${letters}字）をシフト7で暗号化し、空白を消して解かせると、頻度の1位はシフト${noSpace}になる`;
+    assert.ok(readme.includes(jaFox));
+    assert.ok(readmeEn.includes(`Encrypt "${fox}" (${letters} letters) with shift 7`));
+    assert.ok(readmeEn.includes(`frequency puts shift ${noSpace} first`));
+});
